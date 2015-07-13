@@ -30,6 +30,7 @@ class State extends Locality
      * State
      *
      * @ManyToOne(targetEntity="State")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      * @var State
      */
     protected $state;
