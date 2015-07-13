@@ -86,6 +86,7 @@
                 <argument id="geonames.state.repository" type="service" />
                 <argument type="collection">
                     <argument>ADM1</argument>
+                    <argument>ADM2</argument>
                 </argument>
             </call>
 

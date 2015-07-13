@@ -150,5 +150,9 @@ abstract class LocalityRepository extends EntityRepository implements LocalityRe
         if ($admin1Code = $source->getAdmin1Code()) {
             $destination->setAdmin1Code($admin1Code);
         }
+
+        if ($admin2Code = $source->getAdmin2Code()) {
+            $destination->setAdmin2Code($admin2Code);
+        }
     }
 }

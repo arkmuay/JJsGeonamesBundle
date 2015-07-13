@@ -99,4 +99,11 @@ interface LocalityInterface
      * @return string
      */
     public function getAdmin1Code();
+
+    /**
+     * Returns admin1code for locality
+     *
+     * @return string
+     */
+    public function getAdmin2Code();
 }

@@ -35,6 +35,14 @@ class City extends Locality
     protected $state;
 
     /**
+     * SubState
+     *
+     * @ManyToOne(targetEntity="State")
+     * @var State
+     */
+    protected $substate;
+
+    /**
      * @Gedmo\Slug(fields={"nameAscii"})
      * @ORM\Column(length=128, unique=true)
      */
@@ -68,6 +76,28 @@ class City extends Locality
     public function setState(State $state)
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * Returns the substate
+     *
+     * @return State
+     */
+    public function getSubState()
+    {
+        return $this->substate;
+    }
+
+    /**
+     * Sets the state
+     *
+     * @param State $state State
+     */
+    public function setSubState(State $substate)
+    {
+        $this->substate = $substate;
 
         return $this;
     }

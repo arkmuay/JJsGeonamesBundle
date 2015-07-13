@@ -27,6 +27,14 @@ class State extends Locality
 {
 
     /**
+     * State
+     *
+     * @ManyToOne(targetEntity="State")
+     * @var State
+     */
+    protected $state;
+
+    /**
      * @Gedmo\Slug(fields={"nameAscii"})
      * @ORM\Column(length=128, unique=true)
      */
@@ -47,4 +55,28 @@ class State extends Locality
     {
         $this->slug = $slug;
     }
+
+    /**
+     * Returns the state
+     *
+     * @return State
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     * Sets the state
+     *
+     * @param State $state State
+     */
+    public function setState(State $state)
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+
 }

@@ -36,7 +36,7 @@ abstract class Locality
      *
      * Uniquely identifies this locality for syncronization from data on
      * GeoNames.org.
-     * 
+     *
      * @Column(name="geoname_id", type="integer", nullable=true)
      * @var integer
      */
@@ -114,6 +114,8 @@ abstract class Locality
      * @var string
      */
     protected $admin1Code;
+
+    protected $admin2Code;
 
     /**
      * Creates a new locality
@@ -353,6 +355,18 @@ abstract class Locality
     public function setAdmin1Code($admin1Code)
     {
         $this->admin1Code = $admin1Code;
+
+        return $this;
+    }
+
+    public function getAdmin2Code()
+    {
+        return $this->admin2Code;
+    }
+
+    public function setAdmin2Code($admin2Code)
+    {
+        $this->admin2Code = $admin2Code;
 
         return $this;
     }
