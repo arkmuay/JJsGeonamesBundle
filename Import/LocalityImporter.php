@@ -732,7 +732,8 @@ class LocalityImporter
                 $state = $states[$substate->getAdmin1Code()];
                 $substate->setState($state);
                 $stateManager->persist($city);
-                $stateManager->flush();
+            }
+            $stateManager->flush();
         }
 
         // Flush all managers
@@ -775,7 +776,7 @@ class LocalityImporter
 
             if (!$country) {
                 $log->error("Country code '{code}' does not exist in repository {repository}", [
-                    'code' => $countryCode,
+                    'code' => $country,
                     'repository' => get_class($countryRepository),
                 ]);
                 return null;
