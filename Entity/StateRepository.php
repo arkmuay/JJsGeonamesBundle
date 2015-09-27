@@ -71,4 +71,49 @@ class StateRepository extends LocalityRepository
         // Return the state instance from the locality
         return $state;
     }
+
+    public function getStates($limit = 10)
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->select()
+            ->where('s.state IS NULL')
+            ->orderBy('s.population', 'DESC')
+            ->setMaxResults($limit)
+        ;
+        $query = $qb->getQuery();
+        return $query->getResult();
+    }
+
+    public function getSubStates($limit = 100)
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->select()
+            ->where('s.state IS NOT NULL')
+            ->orderBy('s.population', 'DESC')
+            ->setMaxResults($limit)
+        ;
+        $query = $qb->getQuery();
+
+        $substates = $query->getResult();
+
+        /** @var $state \JJs\Bundle\GeonamesBundle\Entity\State */
+
+        $wordsToReplace = array("Département du", "Département des", "Département de la", "Département de l'", "Département de");
+        $regexs = array();
+        foreach ($wordsToReplace as $word) {
+            $regexs[] = "/(\s?)". $word . "\s?/";
+        }
+
+
+        foreach($substates as &$state) {
+
+            $label = $state->getNameUtf8();
+            $label = preg_replace($regexs, '\1', $label);
+
+            $state->setNameUtf8($label);
+        }
+
+        return $substates;
+    }
+
 }

@@ -141,6 +141,8 @@ abstract class LocalityRepository extends EntityRepository implements LocalityRe
         // Copy the longitude
         $destination->setLongitude($source->getLongitude());
 
+        // Copy the population
+        $destination->setPopulation($source->getPopulation());
 
         // Copy the timezone
         if ($timezone = $timezoneRepository->getTimezone($source->getTimezone())) {

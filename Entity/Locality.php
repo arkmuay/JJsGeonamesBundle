@@ -84,6 +84,14 @@ abstract class Locality
     protected $longitude;
 
     /**
+     * Population
+     *
+     * @Column(name="population", type="bigint")
+     * @var bigint
+     */
+    protected $population;
+
+    /**
      * Timezone
      *
      * @ManyToOne(targetEntity="Timezone")
@@ -276,6 +284,16 @@ abstract class Locality
     }
 
     /**
+     * Returns the population of the locality
+     *
+     * @return bigint
+     */
+    public function getPopulation()
+    {
+        return $this->population;
+    }
+
+    /**
      * Sets the longitude of the locality
      * 
      * @param float $longitude Longitude
@@ -285,6 +303,20 @@ abstract class Locality
     public function setLongitude($longitude)
     {
         $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    /**
+     * Sets the population of the locality
+     *
+     * @param bigint $population Population
+     *
+     * @return Locality
+     */
+    public function setPopulation($population)
+    {
+        $this->population = $population;
 
         return $this;
     }

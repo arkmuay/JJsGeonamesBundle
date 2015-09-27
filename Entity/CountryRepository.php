@@ -111,4 +111,16 @@ class CountryRepository extends EntityRepository implements CountryRepositoryInt
         $em->persist($country);
         $em->flush();
     }
+
+    public function getCountries() {
+
+        $qb = $this->createQueryBuilder('c')->select()
+            ->orderBy('c.name', 'ASC');
+
+        $query = $qb->getQuery();
+
+        $query->useResultCache(true, null, 'Geo:Countries');
+
+        return $query->getResult();
+    }
 }

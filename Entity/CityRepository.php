@@ -79,4 +79,44 @@ class CityRepository extends LocalityRepository
         // Return the state instance from the locality
         return $city;
     }
+
+    public function getCities($limit = 10)
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select()
+            ->orderBy('c.population', 'DESC')
+            ->setMaxResults($limit)
+        ;
+        $query = $qb->getQuery();
+        return $query->getResult();
+    }
+
+    public function getFullCity($cityId)
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select(array(
+                'c.nameUtf8 as city_name',
+                'c.slug as city_slug',
+                'substate.nameUtf8 as substate_name',
+                'substate.slug as substate_slug',
+                'state.nameUtf8 as state_name',
+                'state.slug as state_slug',
+                'country.name as country_name',
+                'country.slug as country_slug',
+                'c.latitude',
+                'c.longitude'
+            ))
+            ->leftJoin('c.substate', 'substate')
+            ->innerJoin('c.state', 'state')
+            ->innerJoin('c.country', 'country')
+            ->where('c.id = :id')
+            ->setParameter('id', $cityId)
+            ->setMaxResults(1)
+        ;
+        $query = $qb->getQuery();
+
+        $query->useResultCache(true, null, 'City:Full:' . $cityId);
+
+        return $query->getSingleResult();
+    }
 }

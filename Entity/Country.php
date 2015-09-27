@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
+use Gedmo\Mapping\Annotation as Gedmo;
 use JJs\Bundle\GeonamesBundle\Model\CountryInterface;
 
 /**
@@ -36,6 +37,12 @@ class Country implements CountryInterface
      * @var int
      */
     protected $id;
+
+    /**
+     * @Gedmo\Slug(fields={"name"})
+     * @Column(length=128, unique=true)
+     */
+    private $slug;
 
     /**
      * ISO code (2 character)
@@ -87,6 +94,22 @@ class Country implements CountryInterface
      * @var string
      */
     protected $phonePrefix;
+
+    /**
+     * @return mixed
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param mixed $slug
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+    }
 
     /**
      * Returns the unique identifier of this country in the local database
