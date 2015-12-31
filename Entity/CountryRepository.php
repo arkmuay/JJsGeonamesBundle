@@ -15,20 +15,25 @@ class CountryRepository extends EntityRepository implements CountryRepositoryInt
 {
     /**
      * Returns the country which matches the specified country code
-     *
      * If no country matches the specifed code, returns null
      * 
-     * @param string $code Country code
+     * @param string $identifier Country code
      * 
      * @return Country
      */
     public function getCountry($identifier)
     {
         // Pass through country instances
-        if ($identifier instanceof Country) return $identifier;
+        if ($identifier instanceof Country) {
+
+            return $identifier;
+        }
 
         // Extract the code from country interfaces as required
-        if ($identifier instanceof CountryInterface) $identifier = $identifier->getCode();
+        if ($identifier instanceof CountryInterface) {
+
+            $identifier = $identifier->getCode();
+        }
 
         // Find the country by its code
         return $this->findOneBy(['code' => $identifier]);
@@ -112,8 +117,30 @@ class CountryRepository extends EntityRepository implements CountryRepositoryInt
         $em->flush();
     }
 
-    public function getCountries() {
+    /**
+     * @param $slug
+     *
+     * @return array
+     */
+    public function getCountryBySlug($slug)
+    {
+        $qb = $this->createQueryBuilder('c')->select()
+            ->where('c.slug = :slug')
+            ->setParameter('slug', $slug)
+            ->setMaxResults(1);
 
+        $query = $qb->getQuery();
+
+        $query->useResultCache(true, null, 'Geo:Country');
+
+        return $query->getSingleResult();
+    }
+
+    /**
+     * @return array
+     */
+    public function getCountries()
+    {
         $qb = $this->createQueryBuilder('c')->select()
             ->orderBy('c.name', 'ASC');
 

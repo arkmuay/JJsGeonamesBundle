@@ -72,45 +72,74 @@ class StateRepository extends LocalityRepository
         return $state;
     }
 
-    public function getStates($limit = 10)
+    /**
+     * @param Country $country
+     * @param int     $limit
+     *
+     * @return array
+     */
+    public function getStates($country, $limit = 25)
     {
         $qb = $this->createQueryBuilder('s')
-            ->select()
+            ->select(array(
+                's.nameUtf8 as name',
+                'country.name as country_name',
+            ))
+            ->innerJoin('s.country', 'country')
             ->where('s.state IS NULL')
+            ->andWhere('s.country = :country')
             ->orderBy('s.population', 'DESC')
+            ->setParameter('country', $country)
             ->setMaxResults($limit)
         ;
         $query = $qb->getQuery();
+
+        $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':States');
+
         return $query->getResult();
     }
 
-    public function getSubStates($limit = 100)
+    /**
+     * @param Country $country
+     * @param int     $limit
+     *
+     * @return array
+     */
+    public function getSubStates($country, $limit = 10)
     {
         $qb = $this->createQueryBuilder('s')
-            ->select()
+            ->select(array(
+                's.nameUtf8 as name',
+                'state.nameUtf8 as state_name',
+                'country.name as country_name',
+            ))
+            ->innerJoin('s.state', 'state')
+            ->innerJoin('s.country', 'country')
             ->where('s.state IS NOT NULL')
+            ->andWhere('s.country = :country')
             ->orderBy('s.population', 'DESC')
+            ->setParameter('country', $country)
             ->setMaxResults($limit)
         ;
         $query = $qb->getQuery();
 
+        $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':Substates');
+
         $substates = $query->getResult();
 
-        /** @var $state \JJs\Bundle\GeonamesBundle\Entity\State */
-
-        $wordsToReplace = array("Département du", "Département des", "Département de la", "Département de l'", "Département de");
+        // @TODO Remove ?
+        $wordsToReplace = array("Département du", "Département des", "Département de la", "Département de l'", "Département de", "Département d'");
         $regexs = array();
         foreach ($wordsToReplace as $word) {
             $regexs[] = "/(\s?)". $word . "\s?/";
         }
 
+        foreach ($substates as &$state) {
 
-        foreach($substates as &$state) {
-
-            $label = $state->getNameUtf8();
+            $label = $state['name'];
             $label = preg_replace($regexs, '\1', $label);
 
-            $state->setNameUtf8($label);
+            $state['name'] = $label;
         }
 
         return $substates;

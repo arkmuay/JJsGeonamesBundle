@@ -23,7 +23,6 @@
 
 namespace JJs\Bundle\GeonamesBundle\Entity;
 
-use JJs\Bundle\GeonamesBundle\Data\FeatureCodes;
 use JJs\Bundle\GeonamesBundle\Model\LocalityInterface;
 
 /**
@@ -80,14 +79,39 @@ class CityRepository extends LocalityRepository
         return $city;
     }
 
-    public function getCities($limit = 10)
+    /**
+     * @param Country $country
+     * @param int     $limit
+     *
+     * @return array
+     */
+    public function getCities($country, $limit = 10)
     {
         $qb = $this->createQueryBuilder('c')
-            ->select()
+            ->select(array(
+                'c.nameUtf8 as name',
+                // 'c.slug as city_slug',
+                'substate.nameUtf8 as substate_name',
+                // 'substate.slug as substate_slug',
+                'state.nameUtf8 as state_name',
+                // 'state.slug as state_slug',
+                'country.name as country_name',
+                // 'country.slug as country_slug',
+                // 'c.latitude',
+                // 'c.longitude'
+            ))
+            ->leftJoin('c.substate', 'substate')
+            ->innerJoin('c.state', 'state')
+            ->innerJoin('c.country', 'country')
+            ->where('c.country = :country')
             ->orderBy('c.population', 'DESC')
+            ->setParameter('country', $country)
             ->setMaxResults($limit)
         ;
         $query = $qb->getQuery();
+
+        $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':Cities');
+
         return $query->getResult();
     }
 
