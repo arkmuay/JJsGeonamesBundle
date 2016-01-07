@@ -141,6 +141,6 @@ class CityRepository extends LocalityRepository
 
         $query->useResultCache(true, null, 'City:Full:' . $cityId);
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
     }
 }
