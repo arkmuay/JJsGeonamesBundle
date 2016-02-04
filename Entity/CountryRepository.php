@@ -133,7 +133,7 @@ class CountryRepository extends EntityRepository implements CountryRepositoryInt
 
         $query->useResultCache(true, null, 'Geo:Country');
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
     }
 
     /**
