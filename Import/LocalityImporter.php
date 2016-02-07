@@ -656,7 +656,7 @@ class LocalityImporter
 
             if (($i % $batchSize) === 0) {
                 $localityManager->flush();
-                $localityManager->clear();
+                // $localityManager->clear();
             }
 
             if ($locality instanceof City) {
@@ -694,7 +694,7 @@ class LocalityImporter
                 }
             }
             $cityManager->flush();
-            $cityManager->clear();
+            // $cityManager->clear();
         }
 
         if (count($substates)) {
@@ -712,7 +712,7 @@ class LocalityImporter
                 $stateManager->persist($city);
             }
             $stateManager->flush();
-            $stateManager->clear();
+            // $stateManager->clear();
         }
 
         // Flush all managers
