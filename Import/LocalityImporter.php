@@ -571,8 +571,7 @@ class LocalityImporter
         $stream = @fopen($path, 'r');
         $repositories = [];
 
-
-        $batchSize = 20;
+        $batchSize = 50;
         $i = 0;
         while (false !== $row = fgetcsv($stream, 0, $separator, $enclosure)) {
             $i++;
@@ -671,6 +670,8 @@ class LocalityImporter
             }
 
         }
+        $localityManager->flush();
+        // $localityManager->clear();
 
         $progressHelper->finish();
         $outputInterface->writeln("Setting state field on cities...");
@@ -681,7 +682,11 @@ class LocalityImporter
             $cityManager = $managerRegistry->getManagerForClass(get_class($cities[0]));
 
             /** @var $city \JJs\Bundle\GeonamesBundle\Entity\City */
+            $batchSizeCities = 50;
+            $iCities = 0;
             foreach ($cities as $city) {
+
+                $iCities++;
 
                 if (isset($states[$city->getAdmin1Code()])) {
                     $city->setState($states[$city->getAdmin1Code()]);
@@ -691,6 +696,11 @@ class LocalityImporter
                     $city->setSubState($substates[$city->getAdmin2Code()]);
                     $cityManager->persist($city);
 
+                }
+
+                if (($iCities % $batchSizeCities) === 0) {
+                    $cityManager->flush();
+                    // $cityManager->clear();
                 }
             }
             $cityManager->flush();
@@ -705,11 +715,20 @@ class LocalityImporter
             $stateManager = $managerRegistry->getManagerForClass(get_class($substates[$firstKey]));
 
             /** @var $substate \JJs\Bundle\GeonamesBundle\Entity\State */
+            $batchSizeStates = 50;
+            $iStates = 0;
             foreach ($substates as $substate) {
+
+                $iStates++;
 
                 $state = $states[$substate->getAdmin1Code()];
                 $substate->setState($state);
                 $stateManager->persist($city);
+
+                if (($iStates % $batchSizeStates) === 0) {
+                    $stateManager->flush();
+                    // $stateManager->clear();
+                }
             }
             $stateManager->flush();
             // $stateManager->clear();
@@ -718,7 +737,7 @@ class LocalityImporter
         // Flush all managers
         foreach ($managers as $manager) {
             $manager->flush();
-            $manager->clear();
+            // $manager->clear();
         }
 
         $log->notice("{code} ({country}) data saved", [
