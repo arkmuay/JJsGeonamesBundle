@@ -571,7 +571,7 @@ class LocalityImporter
         $stream = @fopen($path, 'r');
         $repositories = [];
 
-        $batchSize = 50;
+        $batchSize = 150;
         $i = 0;
         while (false !== $row = fgetcsv($stream, 0, $separator, $enclosure)) {
             $i++;
@@ -670,6 +670,7 @@ class LocalityImporter
             }
 
         }
+
         $localityManager->flush();
         // $localityManager->clear();
 
@@ -679,10 +680,11 @@ class LocalityImporter
 
         // Lets update states on city entities. We cannot do it earlier as desired states may not be loaded on city import
         if (count($cities)) {
+
             $cityManager = $managerRegistry->getManagerForClass(get_class($cities[0]));
 
             /** @var $city \JJs\Bundle\GeonamesBundle\Entity\City */
-            $batchSizeCities = 50;
+            $batchSizeCities = 150;
             $iCities = 0;
             foreach ($cities as $city) {
 
@@ -715,7 +717,7 @@ class LocalityImporter
             $stateManager = $managerRegistry->getManagerForClass(get_class($substates[$firstKey]));
 
             /** @var $substate \JJs\Bundle\GeonamesBundle\Entity\State */
-            $batchSizeStates = 50;
+            $batchSizeStates = 150;
             $iStates = 0;
             foreach ($substates as $substate) {
 
@@ -737,7 +739,7 @@ class LocalityImporter
         // Flush all managers
         foreach ($managers as $manager) {
             $manager->flush();
-            // $manager->clear();
+            $manager->clear();
         }
 
         $log->notice("{code} ({country}) data saved", [
