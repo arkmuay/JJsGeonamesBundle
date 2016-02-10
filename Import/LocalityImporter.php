@@ -29,6 +29,8 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Guzzle\Http\Client as HttpClient;
 use InvalidArgumentException;
 use JJs\Bundle\GeonamesBundle\Entity\City;
+use JJs\Bundle\GeonamesBundle\Entity\CityRepository;
+use JJs\Bundle\GeonamesBundle\Entity\Country;
 use JJs\Bundle\GeonamesBundle\Entity\State;
 use JJs\Bundle\GeonamesBundle\Model\CountryInterface;
 use JJs\Bundle\GeonamesBundle\Model\CountryRepositoryInterface;
@@ -573,7 +575,13 @@ class LocalityImporter
 
         $batchSize = 150;
         $i = 0;
-        while (false !== $row = fgetcsv($stream, 0, $separator, $enclosure)) {
+        // while (false !== $row = fgetcsv($stream, 0, $separator, $enclosure)) {
+
+        $content = file_get_contents($path);
+        $rows = explode("\n", $content);
+        foreach ($rows as $row) {
+            $row = explode($separator, $row);
+
             $i++;
 
             $progressHelper->advance();
@@ -609,6 +617,7 @@ class LocalityImporter
 
             // Determine the locality repository for import
             $featureCode = $importedLocality->getFeatureCode();
+
             if (!array_key_exists($featureCode, $repositories)) {
                 $repositories[$featureCode] = $this->getLocalityRepository($featureCode);
             }
@@ -652,6 +661,7 @@ class LocalityImporter
 
             // Persist the locality
             $localityManager->persist($locality);
+            // $localityManager->clear($locality);
 
             if (($i % $batchSize) === 0) {
                 $localityManager->flush();
