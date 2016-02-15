@@ -659,6 +659,11 @@ class LocalityImporter
 
             $localityManager = $managers[$localityClass];
 
+            if (null == $localityManager) {
+
+                continue;
+            }
+
             // Persist the locality
             $localityManager->persist($locality);
             // $localityManager->clear($locality);
@@ -681,8 +686,11 @@ class LocalityImporter
 
         }
 
-        $localityManager->flush();
-        // $localityManager->clear();
+        if (isset($localityManager) && null != $localityManager) {
+
+            $localityManager->flush();
+            // $localityManager->clear();
+        }
 
         $progressHelper->finish();
         $outputInterface->writeln("Setting state field on cities...");
@@ -733,9 +741,15 @@ class LocalityImporter
 
                 $iStates++;
 
-                $state = $states[$substate->getAdmin1Code()];
-                $substate->setState($state);
-                $stateManager->persist($city);
+                $state = null;
+                if (isset($states[$substate->getAdmin1Code()])) {
+                    $state = $states[$substate->getAdmin1Code()];
+                }
+
+                if (null !== $state) {
+                    $substate->setState($state);
+                    $stateManager->persist($city);
+                }
 
                 if (($iStates % $batchSizeStates) === 0) {
                     $stateManager->flush();
