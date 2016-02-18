@@ -90,15 +90,10 @@ class CityRepository extends LocalityRepository
         $qb = $this->createQueryBuilder('c')
             ->select(array(
                 'c.nameUtf8 as name',
-                // 'c.slug as city_slug',
-                'substate.nameUtf8 as substate_name',
-                // 'substate.slug as substate_slug',
-                'state.nameUtf8 as state_name',
-                // 'state.slug as state_slug',
-                'country.name as country_name',
-                // 'country.slug as country_slug',
-                // 'c.latitude',
-                // 'c.longitude'
+                'c.slug as slug',
+                'substate.slug as substate_slug',
+                'state.slug as state_slug',
+                'country.slug as country_slug'
             ))
             ->leftJoin('c.substate', 'substate')
             ->innerJoin('c.state', 'state')

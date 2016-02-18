@@ -53,6 +53,17 @@ class Country implements CountryInterface
     protected $code;
 
     /**
+     * GeoNames.org ID
+     *
+     * Uniquely identifies this locality for syncronization from data on
+     * GeoNames.org.
+     *
+     * @Column(name="geoname_id", type="integer", nullable=true)
+     * @var integer
+     */
+    protected $geonameIdentifier;
+
+    /**
      * Name
      *
      * @Column(length=50, unique=true)
@@ -94,6 +105,30 @@ class Country implements CountryInterface
      * @var string
      */
     protected $phonePrefix;
+
+    /**
+     * Returns the GeoNames.org identifier of this locality
+     *
+     * @return integer
+     */
+    public function getGeonameIdentifier()
+    {
+        return $this->geonameIdentifier;
+    }
+
+    /**
+     * Sets the GeoNames.org identifier of this locality
+     *
+     * @param integer $geonameIdentifier Identifier
+     *
+     * @return Locality
+     */
+    public function setGeonameIdentifier($geonameIdentifier)
+    {
+        $this->geonameIdentifier = $geonameIdentifier;
+
+        return $this;
+    }
 
     /**
      * @return mixed

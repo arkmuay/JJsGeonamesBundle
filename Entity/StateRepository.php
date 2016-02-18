@@ -83,7 +83,8 @@ class StateRepository extends LocalityRepository
         $qb = $this->createQueryBuilder('s')
             ->select(array(
                 's.nameUtf8 as name',
-                'country.name as country_name',
+                's.slug as slug',
+                'country.slug as country_slug',
             ))
             ->innerJoin('s.country', 'country')
             ->where('s.state IS NULL')
@@ -94,7 +95,7 @@ class StateRepository extends LocalityRepository
         ;
         $query = $qb->getQuery();
 
-        $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':States');
+        // $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':States');
 
         return $query->getResult();
     }
@@ -110,8 +111,9 @@ class StateRepository extends LocalityRepository
         $qb = $this->createQueryBuilder('s')
             ->select(array(
                 's.nameUtf8 as name',
-                'state.nameUtf8 as state_name',
-                'country.name as country_name',
+                's.slug as slug',
+                'state.slug as state_slug',
+                'country.slug as country_slug',
             ))
             ->innerJoin('s.state', 'state')
             ->innerJoin('s.country', 'country')

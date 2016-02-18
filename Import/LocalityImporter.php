@@ -618,6 +618,16 @@ class LocalityImporter
             // Determine the locality repository for import
             $featureCode = $importedLocality->getFeatureCode();
 
+            // Quick FIX because of french changements
+            /*
+            if ($featureCode == 'ADM1H') {
+                $featureCode = 'ADM1';
+            }
+            if ($featureCode == 'ADM2H') {
+                $featureCode = 'ADM2';
+            }
+            */
+
             if (!array_key_exists($featureCode, $repositories)) {
                 $repositories[$featureCode] = $this->getLocalityRepository($featureCode);
             }
@@ -677,8 +687,10 @@ class LocalityImporter
                 $cities[] = $locality;
             } elseif ($locality instanceof State) {
 
+                //  || $importedLocality->getFeatureCode() == 'ADM1H'
                 if ($importedLocality->getFeatureCode() == 'ADM1') {
                     $states[$locality->getAdmin1Code()] = $locality;
+                    // || $importedLocality->getFeatureCode() == 'ADM2H'
                 } elseif ($importedLocality->getFeatureCode() == 'ADM2') {
                     $substates[$locality->getAdmin2Code()] = $locality;
                 }
@@ -710,13 +722,12 @@ class LocalityImporter
 
                 if (isset($states[$city->getAdmin1Code()])) {
                     $city->setState($states[$city->getAdmin1Code()]);
-                    $cityManager->persist($city);
                 }
                 if (isset($substates[$city->getAdmin2Code()])) {
                     $city->setSubState($substates[$city->getAdmin2Code()]);
-                    $cityManager->persist($city);
-
                 }
+
+                $cityManager->persist($city);
 
                 if (($iCities % $batchSizeCities) === 0) {
                     $cityManager->flush();
@@ -734,21 +745,22 @@ class LocalityImporter
 
             $stateManager = $managerRegistry->getManagerForClass(get_class($substates[$firstKey]));
 
-            /** @var $substate \JJs\Bundle\GeonamesBundle\Entity\State */
             $batchSizeStates = 150;
             $iStates = 0;
             foreach ($substates as $substate) {
 
+                // var_dump($substate->getNameUtf8() . ' (' . $substate->getAdmin1Code() . '::' . $substate->getAdmin2Code() . ')');
+
                 $iStates++;
 
-                $state = null;
                 if (isset($states[$substate->getAdmin1Code()])) {
-                    $state = $states[$substate->getAdmin1Code()];
-                }
 
-                if (null !== $state) {
+                    $state = $states[$substate->getAdmin1Code()];
+
+                    // var_dump('==>' . $state->getNameUtf8());
+
                     $substate->setState($state);
-                    $stateManager->persist($city);
+                    $stateManager->persist($substate);
                 }
 
                 if (($iStates % $batchSizeStates) === 0) {

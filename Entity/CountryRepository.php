@@ -57,16 +57,21 @@ class CountryRepository extends EntityRepository implements CountryRepositoryInt
      */
     public function copyCountry(CountryInterface $source, Country $destination)
     {
-        $code             = $source->getCode();
-        $name             = $source->getName();
-        $domain           = $source->getDomain();
-        $postalCodeFormat = $source->getPostalCodeFormat();
-        $postalCodeRegex  = $source->getPostalCodeRegex();
-        $phonePrefix      = $source->getPhonePrefix();
+        $code              = $source->getCode();
+        $geonameIdentifier = $source->getGeonameIdentifier();
+        $name              = $source->getName();
+        $domain            = $source->getDomain();
+        $postalCodeFormat  = $source->getPostalCodeFormat();
+        $postalCodeRegex   = $source->getPostalCodeRegex();
+        $phonePrefix       = $source->getPhonePrefix();
 
         // Copy the country code
         if ($code !== $destination->getCode()) {
             $destination->setCode($code);
+        }
+
+        if ($geonameIdentifier !== $destination->getGeonameIdentifier()) {
+            $destination->setGeonameIdentifier($geonameIdentifier);
         }
 
         // Copy the country name
