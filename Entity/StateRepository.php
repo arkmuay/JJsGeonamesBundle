@@ -95,7 +95,7 @@ class StateRepository extends LocalityRepository
         ;
         $query = $qb->getQuery();
 
-        // $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':States');
+        $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':States');
 
         return $query->getResult();
     }
