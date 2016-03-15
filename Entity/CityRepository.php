@@ -85,7 +85,7 @@ class CityRepository extends LocalityRepository
      *
      * @return array
      */
-    public function getCities($country, $limit = 10)
+    public function getCities($country, $state = null, $substate = null, $limit = null)
     {
         $qb = $this->createQueryBuilder('c')
             ->select(array(
@@ -101,11 +101,24 @@ class CityRepository extends LocalityRepository
             ->where('c.country = :country')
             ->orderBy('c.population', 'DESC')
             ->setParameter('country', $country)
-            ->setMaxResults($limit)
         ;
+
+        if (null !== $limit) {
+            $qb->setMaxResults($limit);
+        }
+
+        $key = 'Geo:Country:' . $country->getId() . ':Cities';
+
+        if (null !== $substate) {
+            $qb->andWhere('c.substate = :substate')
+               ->setParameter('substate', $substate);
+
+            $key .= ':Substates:' . $substate->getId();
+        }
+
         $query = $qb->getQuery();
 
-        $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':Cities');
+        $query->useResultCache(true, null, $key);
 
         return $query->getResult();
     }

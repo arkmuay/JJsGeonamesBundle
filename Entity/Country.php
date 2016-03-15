@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JJs\Bundle\GeonamesBundle\Model\CountryInterface;
 
@@ -23,7 +24,9 @@ use JJs\Bundle\GeonamesBundle\Model\CountryInterface;
  * the largest geographical categorization.
  *
  * @Entity(repositoryClass="CountryRepository")
- * @Table(name="geo_country")
+ * @Table(name="geo_country", indexes={
+ *  @ORM\Index(name="slug_idx", columns={"slug"})
+ * }))
  * @author Josiah <josiah@jjs.id.au>
  */
 class Country implements CountryInterface

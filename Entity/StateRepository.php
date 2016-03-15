@@ -106,10 +106,11 @@ class StateRepository extends LocalityRepository
      *
      * @return array
      */
-    public function getSubStates($country, $limit = 10)
+    public function getSubStates($country, $state = null, $limit = null)
     {
         $qb = $this->createQueryBuilder('s')
             ->select(array(
+                's.id',
                 's.nameUtf8 as name',
                 's.slug as slug',
                 'state.slug as state_slug',
@@ -121,11 +122,24 @@ class StateRepository extends LocalityRepository
             ->andWhere('s.country = :country')
             ->orderBy('s.population', 'DESC')
             ->setParameter('country', $country)
-            ->setMaxResults($limit)
         ;
+
+        if (null !== $limit) {
+            $qb->setMaxResults($limit);
+        }
+
+        $key = 'Geo:Country:' . $country->getId() . ':Substates';
+
+        if (null !== $state) {
+            $qb->andWhere('s.state = :state')
+                ->setParameter('state', $state);
+
+            $key .= ':' . $state->getId();
+        }
+
         $query = $qb->getQuery();
 
-        $query->useResultCache(true, null, 'Geo:Country:' . $country->getId() . ':Substates');
+        $query->useResultCache(true, null, $key);
 
         $substates = $query->getResult();
 
