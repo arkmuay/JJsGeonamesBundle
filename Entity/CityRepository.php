@@ -138,7 +138,7 @@ class CityRepository extends LocalityRepository
                 'c.latitude',
                 'c.longitude'
             ))
-            ->leftJoin('c.substate', 'substate')
+            ->innerJoin('c.substate', 'substate')
             ->innerJoin('c.state', 'state')
             ->innerJoin('c.country', 'country')
             ->where('c.id = :id')
