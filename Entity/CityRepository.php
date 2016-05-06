@@ -138,8 +138,8 @@ class CityRepository extends LocalityRepository
                 'c.latitude',
                 'c.longitude'
             ))
-            ->innerJoin('c.substate', 'substate')
-            ->innerJoin('c.state', 'state')
+            ->leftJoin('c.substate', 'substate')
+            ->leftJoin('c.state', 'state')
             ->innerJoin('c.country', 'country')
             ->where('c.id = :id')
             ->setParameter('id', $cityId)
