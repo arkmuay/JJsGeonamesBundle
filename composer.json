@@ -13,7 +13,7 @@
         "psr-0": {"JJs\\Bundle\\GeonamesBundle": ""}
     },
     "target-dir": "JJs/Bundle/GeonamesBundle",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": "~5.4",
         "guzzle/http": "~3.5",
