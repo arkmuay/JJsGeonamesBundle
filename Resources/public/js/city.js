@@ -2,20 +2,13 @@ $.fn.localisationSearch = function() {
 
     var $this = this;
 
-    /*
-     $this.on('keypress', 'input, select', function(e) {
-     if (e.keyCode == '13')
-     e.preventDefault();
-     }); */
-
     $this.find('.city').search({
-        cache: true,
+        cache: false,
         minCharacters: 2,
         maxResults: 7,
         apiSettings: {
-            cache: true,
+            cache: false,
             url: decodeURIComponent(Routing.generate('search_city', { "query": '{query}', "country": '{country}' })),
-            // url: '/app_dev.php/suggest/city?search={query}&country={/country}',
             beforeSend: function(settings) {
                 settings.urlData.country = $this.find('.country select').val();
                 return settings;
