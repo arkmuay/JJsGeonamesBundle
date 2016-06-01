@@ -1,0 +1,46 @@
+fos_elastica:
+    clients:
+        default: { host: localhost, port: 9200 }
+    indexes:
+        geo:
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            custom_search_analyzer:
+                                type: custom
+                                tokenizer: standard
+                                filter   : [standard, lowercase, asciifolding]
+                            custom_index_analyzer:
+                                type: custom
+                                tokenizer: standard
+                                filter   : [standard, lowercase, asciifolding, custom_filter]
+                        filter:
+                            custom_filter:
+                                type: edgeNGram
+                                side: front
+                                min_gram: 1
+                                max_gram: 32
+            types:
+                city:
+                    mappings:
+                        id: { type: integer }
+                        name: { search_analyzer: custom_search_analyzer, index_analyzer: custom_index_analyzer, type: string }
+                        state :
+                            type : object
+                            properties :
+                                name : { type: string, index: not_analyzed }
+                        country :
+                            type : object
+                            properties :
+                                id: { type: integer }
+                                name : { type: string, index: not_analyzed }
+                    persistence:
+                        driver: orm
+                        model: JJs\Bundle\GeonamesBundle\Entity\City
+                        provider: ~
+                        finder: ~
+                        listener:
+                            insert: false
+                            update: false
+                            delete: false

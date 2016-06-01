@@ -46,5 +46,6 @@ class JJsGeonamesExtension extends Extension
         $loader->load('country.xml');
         $loader->load('timezone.xml');
         $loader->load('locality.xml');
+        $loader->load('services.xml');
     }
 }

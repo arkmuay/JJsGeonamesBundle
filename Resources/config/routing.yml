@@ -1,0 +1,6 @@
+search_city:
+    path: /searchengine/city
+    defaults:
+        _controller: search.city:indexAction
+    options:
+        expose: true

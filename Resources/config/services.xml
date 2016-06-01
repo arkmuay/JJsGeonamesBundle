@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<container
+    xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+
+        <service id="app.form.type.task" class="JJs\Bundle\GeonamesBundle\Form\CityType">
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <tag name="form.type" />
+        </service>
+
+        <service id="search.city" class="JJs\Bundle\GeonamesBundle\Service\SearchCity">
+            <argument type="service" id="fos_elastica.index.geo.city" />
+        </service>
+    </services>
+</container>
