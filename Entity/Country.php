@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JJs\Bundle\GeonamesBundle\Model\CountryInterface;
 
@@ -23,7 +24,9 @@ use JJs\Bundle\GeonamesBundle\Model\CountryInterface;
  * the largest geographical categorization.
  *
  * @Entity(repositoryClass="CountryRepository")
- * @Table(name="geo_country")
+ * @Table(name="geo_country", indexes={
+ *  @ORM\Index(name="slug_idx", columns={"slug"})
+ * }))
  * @author Josiah <josiah@jjs.id.au>
  */
 class Country implements CountryInterface
@@ -51,6 +54,17 @@ class Country implements CountryInterface
      * @var string
      */
     protected $code;
+
+    /**
+     * GeoNames.org ID
+     *
+     * Uniquely identifies this locality for syncronization from data on
+     * GeoNames.org.
+     *
+     * @Column(name="geoname_id", type="integer", nullable=true)
+     * @var integer
+     */
+    protected $geonameIdentifier;
 
     /**
      * Name
@@ -94,6 +108,30 @@ class Country implements CountryInterface
      * @var string
      */
     protected $phonePrefix;
+
+    /**
+     * Returns the GeoNames.org identifier of this locality
+     *
+     * @return integer
+     */
+    public function getGeonameIdentifier()
+    {
+        return $this->geonameIdentifier;
+    }
+
+    /**
+     * Sets the GeoNames.org identifier of this locality
+     *
+     * @param integer $geonameIdentifier Identifier
+     *
+     * @return Locality
+     */
+    public function setGeonameIdentifier($geonameIdentifier)
+    {
+        $this->geonameIdentifier = $geonameIdentifier;
+
+        return $this;
+    }
 
     /**
      * @return mixed

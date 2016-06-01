@@ -20,7 +20,10 @@ use Doctrine\ORM\Mapping as ORM;
  * 'province' for some countries.
  *
  * @Entity(repositoryClass="StateRepository")
- * @Table(name="geo_state", indexes={@ORM\Index(name="geoname_id", columns={"geoname_id"})}))
+ * @Table(name="geo_state", indexes={
+ *  @ORM\Index(name="geoname_id", columns={"geoname_id"}),
+ *  @ORM\Index(name="slug_idx", columns={"slug"})
+ * }))
  * @author Josiah <josiah@jjs.id.au>
  */
 class State extends Locality

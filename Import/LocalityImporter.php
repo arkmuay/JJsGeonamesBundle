@@ -29,6 +29,8 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Guzzle\Http\Client as HttpClient;
 use InvalidArgumentException;
 use JJs\Bundle\GeonamesBundle\Entity\City;
+use JJs\Bundle\GeonamesBundle\Entity\CityRepository;
+use JJs\Bundle\GeonamesBundle\Entity\Country;
 use JJs\Bundle\GeonamesBundle\Entity\State;
 use JJs\Bundle\GeonamesBundle\Model\CountryInterface;
 use JJs\Bundle\GeonamesBundle\Model\CountryRepositoryInterface;
@@ -570,7 +572,18 @@ class LocalityImporter
         $progressHelper->start($outputInterface, $this->getLinesCount($stream));
         $stream = @fopen($path, 'r');
         $repositories = [];
-        while (false !== $row = fgetcsv($stream, 0, $separator, $enclosure)) {
+
+        $batchSize = 150;
+        $i = 0;
+        // while (false !== $row = fgetcsv($stream, 0, $separator, $enclosure)) {
+
+        $content = file_get_contents($path);
+        $rows = explode("\n", $content);
+        foreach ($rows as $row) {
+            $row = explode($separator, $row);
+
+            $i++;
+
             $progressHelper->advance();
             // Increment the line number
             $lineNumber++;
@@ -582,7 +595,9 @@ class LocalityImporter
             ]);
 
             // Skip blank rows
-            if (!$row[0]) continue;
+            if (!$row[0]) {
+                continue;
+            }
 
             // Display a warning and skip rows where there are not enough
             // columns to generate a locality
@@ -602,8 +617,20 @@ class LocalityImporter
 
             // Determine the locality repository for import
             $featureCode = $importedLocality->getFeatureCode();
-            if(!array_key_exists($featureCode, $repositories))
+
+            // Quick FIX because of french changements
+            /*
+            if ($featureCode == 'ADM1H') {
+                $featureCode = 'ADM1';
+            }
+            if ($featureCode == 'ADM2H') {
+                $featureCode = 'ADM2';
+            }
+            */
+
+            if (!array_key_exists($featureCode, $repositories)) {
                 $repositories[$featureCode] = $this->getLocalityRepository($featureCode);
+            }
 
             $localityRepository = $repositories[$featureCode];
 
@@ -621,11 +648,13 @@ class LocalityImporter
             $locality = $this->importLocality($localityRepository, $importedLocality, $country, $filter, $log);
 
             // Skip non-importable localities
-            if (!$locality) continue;
+            if (!$locality) {
+                continue;
+            }
 
             // Determine the manager for the locality
             $localityClass = get_class($locality);
-            if(!isset($managers[$localityClass])) {
+            if (!isset($managers[$localityClass])) {
                 $localityManager = $managerRegistry->getManagerForClass($localityClass);
 
                 // Ensure the locality manager was loaded
@@ -640,51 +669,39 @@ class LocalityImporter
 
             $localityManager = $managers[$localityClass];
 
-            // Persist the locality
-            $localityManager->persist($locality);
-            $localityManager->flush();
+            if (null == $localityManager) {
 
-            if($locality instanceof City)
-                $cities[] = $locality;
-            elseif($locality instanceof State) {
-
-                /*
-                $pos = strpos(strtolower($locality->getNameAscii()), 'le-de-france');
-                if ($pos !== false) {
-                    var_dump($locality->getNameAscii());
-                    var_dump($locality->getAdmin1Code());
-                    var_dump($locality->getAdmin2Code());
-                }
-
-                $pos = strpos(strtolower($locality->getNameAscii()), 'hauts-de-seine');
-                if ($pos !== false) {
-                    var_dump($locality->getNameAscii());
-                    var_dump($locality->getAdmin1Code());
-                    var_dump($locality->getAdmin2Code());
-                } */
-
-                if ($importedLocality->getFeatureCode() == 'ADM1')
-                    $states[$locality->getAdmin1Code()] = $locality;
-                elseif ($importedLocality->getFeatureCode() == 'ADM2') {
-                    // $loc = $localityRepository->getLocality($states[$locality->getAdmin1Code()]);
-                    // $locality->setState($loc);
-                    $substates[$locality->getAdmin2Code()] = $locality;
-
-                }
-
-
-                //
+                continue;
             }
 
+            // Persist the locality
+            $localityManager->persist($locality);
+            // $localityManager->clear($locality);
 
-            // Register that the locality was imported
-            //$type = substr($localityClass, strrpos($localityClass, '\\')+1);
-            /*$log->info("{country_code} {type} {locality} imported into repository {repository}", [
-                'country_code' => $country->getCode(),
-                'locality'     => $locality->getNameAscii(),
-                'type'         => $type,
-                'repository'   => get_class($localityRepository),
-            ]);*/
+            if (($i % $batchSize) === 0) {
+                $localityManager->flush();
+                // $localityManager->clear();
+            }
+
+            if ($locality instanceof City) {
+                $cities[] = $locality;
+            } elseif ($locality instanceof State) {
+
+                //  || $importedLocality->getFeatureCode() == 'ADM1H'
+                if ($importedLocality->getFeatureCode() == 'ADM1') {
+                    $states[$locality->getAdmin1Code()] = $locality;
+                    // || $importedLocality->getFeatureCode() == 'ADM2H'
+                } elseif ($importedLocality->getFeatureCode() == 'ADM2') {
+                    $substates[$locality->getAdmin2Code()] = $locality;
+                }
+            }
+
+        }
+
+        if (isset($localityManager) && null != $localityManager) {
+
+            $localityManager->flush();
+            // $localityManager->clear();
         }
 
         $progressHelper->finish();
@@ -692,53 +709,73 @@ class LocalityImporter
         $log->info("Saving {country} data", ['country' => $country->getName()]);
 
         // Lets update states on city entities. We cannot do it earlier as desired states may not be loaded on city import
-        if(count($cities)) {
+        if (count($cities)) {
+
             $cityManager = $managerRegistry->getManagerForClass(get_class($cities[0]));
 
             /** @var $city \JJs\Bundle\GeonamesBundle\Entity\City */
-            foreach ($cities AS $city) {
+            $batchSizeCities = 150;
+            $iCities = 0;
+            foreach ($cities as $city) {
+
+                $iCities++;
+
                 if (isset($states[$city->getAdmin1Code()])) {
                     $city->setState($states[$city->getAdmin1Code()]);
-                    $cityManager->persist($city);
                 }
                 if (isset($substates[$city->getAdmin2Code()])) {
                     $city->setSubState($substates[$city->getAdmin2Code()]);
-                    $cityManager->persist($city);
+                }
 
-                    /*
-                    if (null == $city->getState()->getState()) {
-                        $localityRepository = $repositories[$city->getAdmin1Code()];
-                        $loc = $localityRepository->getLocality($states[$city->getAdmin1Code()]);
-                        $city->getState()->setState($loc);
-                    } */
+                $cityManager->persist($city);
 
-                    // if ($importedLocality->getFeatureCode() == 'ADM2') {
-                        // $loc = $localityRepository->getLocality($states[$locality->getAdmin1Code()]);
-                        // $locality->setState($loc);
+                if (($iCities % $batchSizeCities) === 0) {
+                    $cityManager->flush();
+                    // $cityManager->clear();
                 }
             }
             $cityManager->flush();
+            // $cityManager->clear();
         }
 
-        if(count($substates)) {
+        if (count($substates)) {
             reset($substates);
-            $first_key = key($substates);
 
-            $stateManager = $managerRegistry->getManagerForClass(get_class($substates[$first_key]));
+            $firstKey = key($substates);
 
-            /** @var $substate \JJs\Bundle\GeonamesBundle\Entity\State */
-            foreach ($substates AS $substate) {
+            $stateManager = $managerRegistry->getManagerForClass(get_class($substates[$firstKey]));
 
-                $state = $states[$substate->getAdmin1Code()];
-                $substate->setState($state);
-                $stateManager->persist($city);
+            $batchSizeStates = 150;
+            $iStates = 0;
+            foreach ($substates as $substate) {
+
+                // var_dump($substate->getNameUtf8() . ' (' . $substate->getAdmin1Code() . '::' . $substate->getAdmin2Code() . ')');
+
+                $iStates++;
+
+                if (isset($states[$substate->getAdmin1Code()])) {
+
+                    $state = $states[$substate->getAdmin1Code()];
+
+                    // var_dump('==>' . $state->getNameUtf8());
+
+                    $substate->setState($state);
+                    $stateManager->persist($substate);
+                }
+
+                if (($iStates % $batchSizeStates) === 0) {
+                    $stateManager->flush();
+                    // $stateManager->clear();
+                }
             }
             $stateManager->flush();
+            // $stateManager->clear();
         }
 
         // Flush all managers
         foreach ($managers as $manager) {
             $manager->flush();
+            $manager->clear();
         }
 
         $log->notice("{code} ({country}) data saved", [

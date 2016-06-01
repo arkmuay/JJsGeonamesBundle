@@ -209,24 +209,27 @@ class CountryLoader
             // Skip all commented codes
             if (substr($data[0], 0, 1) === '#') continue;
 
-            $code             = $data[self::COLUMN_ISO_CODE];
-            $name             = $data[self::COLUMN_NAME];
-            $domain           = $data[self::COLUMN_TOP_LEVEL_DOMAIN];
-            $postalCodeFormat = $data[self::COLUMN_POSTAL_CODE_FORMAT];
-            $postalCodeRegex  = $data[self::COLUMN_POSTAL_CODE_REGEX];
-            $phonePrefix      = $data[self::COLUMN_PHONE];
+            $code              = $data[self::COLUMN_ISO_CODE];
+            $geonameIdentifier = $data[self::COLUMN_GEONAME_ID];
+            $name              = $data[self::COLUMN_NAME];
+            $domain            = $data[self::COLUMN_TOP_LEVEL_DOMAIN];
+            $postalCodeFormat  = $data[self::COLUMN_POSTAL_CODE_FORMAT];
+            $postalCodeRegex   = $data[self::COLUMN_POSTAL_CODE_REGEX];
+            $phonePrefix       = $data[self::COLUMN_PHONE];
+
 
             // Log the process
             $log->info("{code} ({name})", [
-                'code'             => $code,
-                'name'             => $name,
-                'domain'           => $domain,
-                'postalCodeFormat' => $postalCodeFormat,
-                'postalCodeRegex'  => $postalCodeRegex,
-                'phonePrefix'      => $phonePrefix,
+                'code'              => $code,
+                'geonameIdentifier' => $geonameIdentifier,
+                'name'              => $name,
+                'domain'            => $domain,
+                'postalCodeFormat'  => $postalCodeFormat,
+                'postalCodeRegex'   => $postalCodeRegex,
+                'phonePrefix'       => $phonePrefix,
             ]);
 
-            $country = new Country($code, $name, $domain, $postalCodeFormat, $postalCodeRegex, $phonePrefix);
+            $country = new Country($code, $geonameIdentifier, $name, $domain, $postalCodeFormat, $postalCodeRegex, $phonePrefix);
             $countryRepository->saveCountry($country);
         }
     }
