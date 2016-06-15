@@ -24,12 +24,15 @@ class CityType extends AbstractType
      */
     private $om;
 
+    private $countries;
+
     /**
      * @param ObjectManager $om
      */
-    public function __construct(ObjectManager $om)
+    public function __construct(ObjectManager $om, $countries = null)
     {
         $this->om = $om;
+        $this->countries = $countries;
     }
 
     /**
@@ -75,8 +78,6 @@ class CityType extends AbstractType
      */
     protected function buildChoicesCountries($countryCode = null)
     {
-        // var_dump($country);
-
         $choices = [];
         $repository = $this->om->getRepository('JJs\Bundle\GeonamesBundle\Entity\Country');
         $countries  = $repository->getCountries();
@@ -85,7 +86,14 @@ class CityType extends AbstractType
 
         /** @var $country \JJs\Bundle\GeonamesBundle\Entity\Country */
         foreach ($countries as $country) {
+
+            if (null !== $this->countries && !in_array($country->getCode(), array_values($this->countries))) {
+
+                continue;
+            }
+
             $choices[$country->getName()] = $country->getId();
+
             if ($countryCode == $country->getCode()) {
                 $default = $country->getID();
             }
