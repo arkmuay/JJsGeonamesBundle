@@ -2,6 +2,7 @@
 
 namespace JJs\Bundle\GeonamesBundle\Form;
 
+use JJs\Bundle\GeonamesBundle\Entity\City;
 use JJs\Bundle\GeonamesBundle\Form\DataTransformer\CityToNumberTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -116,12 +117,10 @@ class CityType extends AbstractType
             'label'        => false,
             'error_bubbling' => false,
             'cascade_validation' => true,
-            // 'data_class' => null,
+            // 'data_class' => City::class,
         ));
 
     }
-
-
 
     /**
      * @return string
@@ -130,4 +129,5 @@ class CityType extends AbstractType
     {
         return 'city';
     }
+
 }

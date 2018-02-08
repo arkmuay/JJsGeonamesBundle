@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\Table;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Expose;
 
 /**
  * Geographical Locality
@@ -18,6 +21,7 @@ use Doctrine\ORM\Mapping\Table;
  *
  * @MappedSuperclass()
  * @author Josiah <Josiah@jjs.id.au>
+ * @ExclusionPolicy("all")
  */
 abstract class Locality
 {
@@ -28,6 +32,8 @@ abstract class Locality
      * @GeneratedValue
      * @Id
      * @var integer
+     * @Expose
+     * @Groups({"location"})
      */
     protected $id;
 
@@ -72,6 +78,8 @@ abstract class Locality
      *
      * @Column(name="latitude", type="float", scale=6, precision=9)
      * @var float
+     * @Expose
+     * @Groups({"location"})
      */
     protected $latitude;
 
@@ -80,6 +88,8 @@ abstract class Locality
      *
      * @Column(name="longitude", type="float", scale=6, precision=9)
      * @var float
+     * @Expose
+     * @Groups({"location"})
      */
     protected $longitude;
 

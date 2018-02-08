@@ -13,6 +13,9 @@ use Doctrine\ORM\Mapping\Table;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Expose;
 
 /**
  * City
@@ -26,6 +29,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * }))
  *
  * @author Josiah <josiah@jjs.id.au>
+ * @ExclusionPolicy("all")
  */
 class City extends Locality
 {
@@ -144,4 +148,5 @@ class City extends Locality
     {
         $this->relation = $relation;
     }
+
 }
