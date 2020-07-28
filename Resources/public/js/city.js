@@ -5,7 +5,7 @@ $.fn.localisationSearch = function() {
     $this.find('.city').search({
         cache: false,
         minCharacters: 2,
-        maxResults: 7,
+        maxResults: 10,
         apiSettings: {
             cache: false,
             url: decodeURIComponent(Routing.generate('search_city', { "query": '{query}', "country": '{country}' })),
